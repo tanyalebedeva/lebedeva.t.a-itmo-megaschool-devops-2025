@@ -1,0 +1,7 @@
+image:
+  repository: lebedeva.t.a-itmo-megaschool-devops-2025/blob/main/.github/workflows/helm-check.yml
+  tag: main
+
+service:
+  type: ClusterIp
+  port: 8001
