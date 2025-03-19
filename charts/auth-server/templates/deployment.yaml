@@ -1,16 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "..fullname" . }}
-  labels:
-    {{- include "..labels" . | nindent 4 }}
+  name: {{.Release.Name}}-auth-server
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "..selectorLabels" . | nindent 6 }}
+      app: auth-server
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,10 +14,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "..labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: auth-server
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -31,15 +24,18 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: auth-server
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: ifilyaninitmo/auth-server-mega-itmo:main
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8060
               protocol: TCP
+          env:
+            -name: MONGODB_CONN_STR
+             value: "{{.Values.env/MONGODB_CONN_STR}}"
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
